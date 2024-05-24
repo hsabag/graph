@@ -9,17 +9,23 @@ import java.util.Set;
 
 import com.graph.model.Node;
 import com.graph.model.Relation;
-import com.graph.model.permission.Resource;
 import com.graph.service.permission.RelationTypes;
 
 public class GraphService implements GraphOps {
+    
     Map<String, Node> nodes = new HashMap<>();
     Map<String, Set<Relation>> edges = new HashMap<>();
 
     @Override
     public Node addNode(String id, Object value, String type) {
-        Node node = new Node(id, value, id);
-        return this.nodes.put(id, node);
+        Node node = this.nodes.get(id);
+        if (node == null) {
+            node = new Node(id, value, id);
+            this.nodes.put(id, node);
+        } else {
+            node.setValue(value);
+        }
+        return node;
     }
 
     @Override
@@ -28,8 +34,8 @@ public class GraphService implements GraphOps {
         Set<Relation> relations = this.edges.computeIfAbsent(relation.getKey(), k -> new HashSet<>());
         relations.add(relation);
         if (relations.size() == 1) {
-            this.nodes.get(relation.getFrom()).addOutGoing(relation);
-            this.nodes.get(relation.getTo()).addIncoming(relation);
+            this.nodes.get(from).addOutGoing(relation);
+            this.nodes.get(to).addIncoming(relation);
         }
         return relation;
     }
@@ -43,6 +49,10 @@ public class GraphService implements GraphOps {
     public Set<Relation> findRelations(String from, String to, RelationTypes type) {
         Relation relation = new Relation(from, to, type, null);
         return this.edges.get(relation.getKey());
+    }
+
+    private void print(List<Node> path) {
+        path.stream().forEach(n -> System.out.println(n.getId()));
     }
 
     @Override
@@ -72,6 +82,7 @@ public class GraphService implements GraphOps {
             return null;
         }
         path.addAll(selectedPath);
+        print(path);
         return path;
     }
 

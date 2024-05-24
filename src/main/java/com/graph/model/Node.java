@@ -48,6 +48,10 @@ final public class Node {
         return value;
     }
 
+    public void setValue(Object newValue) {
+        this.value = newValue;
+    }
+
     public void addOutGoing(Relation relation) {
         Map<String, List<Relation>> typeRelations = this.outGoingRelations.computeIfAbsent(relation.type, type -> new HashMap<>());
         List<Relation> relationsList = typeRelations.computeIfAbsent(relation.to, id -> new ArrayList<>());
